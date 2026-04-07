@@ -59,6 +59,55 @@
   .tag-pill { display:inline-block;padding:2px 10px;border-radius:100px;font-size:11px;font-weight:600; }
   @media(max-width:768px){.hero-title{font-size:2rem!important;}}
 
+  /* ── 阅读进度条 ── */
+  #read-progress {
+    position:fixed; top:0; left:0; height:3px; width:0%;
+    background:linear-gradient(90deg,#3b82f6,#8b5cf6,#34d399);
+    z-index:2000; transition:width 0.1s linear;
+    box-shadow:0 0 8px rgba(139,92,246,0.6);
+  }
+
+  /* ── 导航栏 ── */
+  #topnav {
+    position:fixed; top:3px; left:0; right:0; z-index:1900;
+    height:54px;
+    background:rgba(10,14,26,0.82);
+    backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid rgba(255,255,255,0.07);
+    display:flex; align-items:center; padding:0 24px;
+    transition:box-shadow 0.3s;
+  }
+  #topnav.scrolled { box-shadow:0 4px 24px rgba(0,0,0,0.5); }
+  .nav-brand {
+    display:flex; align-items:center; gap:8px;
+    font-weight:700; font-size:15px; color:#e2e8f0;
+    text-decoration:none; white-space:nowrap; margin-right:32px;
+    flex-shrink:0;
+  }
+  .nav-brand .brand-icon {
+    width:28px; height:28px; border-radius:8px;
+    background:linear-gradient(135deg,#3b82f6,#8b5cf6);
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px;
+  }
+  .nav-links {
+    display:flex; align-items:center; gap:4px;
+    overflow-x:auto; scrollbar-width:none; flex:1;
+  }
+  .nav-links::-webkit-scrollbar { display:none; }
+  .nav-link {
+    padding:5px 13px; border-radius:8px; font-size:13px; font-weight:500;
+    color:#94a3b8; text-decoration:none; white-space:nowrap;
+    transition:background 0.2s, color 0.2s;
+  }
+  .nav-link:hover { background:rgba(255,255,255,0.06); color:#e2e8f0; }
+  .nav-link.active { background:rgba(59,130,246,0.12); color:#60a5fa; }
+  @media(max-width:640px) {
+    #topnav { padding:0 14px; }
+    .nav-brand { margin-right:12px; }
+    .nav-link { padding:5px 9px; font-size:12px; }
+  }
+
   /* Prompt section */
   .prompt-container { position:relative; }
   .prompt-preview { cursor:pointer; position:relative; }
@@ -131,12 +180,32 @@
 </head>
 <body>
 
+<!-- ── 阅读进度条 ── -->
+<div id="read-progress"></div>
+
+<!-- ── 导航栏 ── -->
+<nav id="topnav">
+  <a href="#hero" class="nav-brand">
+    <div class="brand-icon">🐴</div>
+    好码配好鞍
+  </a>
+  <div class="nav-links">
+    <a href="#hero"      class="nav-link" data-section="hero">背景</a>
+    <a href="#nightmare" class="nav-link" data-section="nightmare">运营噩梦</a>
+    <a href="#harness"   class="nav-link" data-section="harness">核心概念</a>
+    <a href="#steps"     class="nav-link" data-section="steps">探索路径</a>
+    <a href="#compare"   class="nav-link" data-section="compare">Demo 对比</a>
+    <a href="#table"     class="nav-link" data-section="table">全维度对比</a>
+    <a href="#cta"       class="nav-link" data-section="cta">开始行动</a>
+  </div>
+</nav>
+
 <div class="ambient-blob blob-blue"></div>
 <div class="ambient-blob blob-purple"></div>
 <div class="ambient-blob blob-teal"></div>
 
 <!-- ═══════ HERO ═══════ -->
-<section class="min-h-screen flex flex-col justify-center items-center text-center px-6 py-24">
+<section id="hero" class="min-h-screen flex flex-col justify-center items-center text-center px-6 py-24" style="padding-top:calc(6rem + 54px)">
   <div class="fade-in max-w-4xl mx-auto">
     <div class="mb-5 flex flex-col items-center gap-2">
       <div class="hero-badge">
@@ -166,7 +235,7 @@
 </section>
 
 <!-- ═══════ NIGHTMARES ═══════ -->
-<section class="px-6 py-24" style="background:rgba(0,0,0,0.2)">
+<section id="nightmare" class="px-6 py-24" style="background:rgba(0,0,0,0.2)">
   <div class="max-w-4xl mx-auto">
     <div class="fade-in text-center mb-12">
       <h2 class="text-3xl font-bold mb-3">不用 Harness 会发生什么？</h2>
@@ -310,7 +379,7 @@
 </section>
 
 <!-- ═══════ 5 STEPS ═══════ -->
-<section class="px-6 py-24" style="background:rgba(0,0,0,0.2)">
+<section id="steps" class="px-6 py-24" style="background:rgba(0,0,0,0.2)">
   <div class="max-w-5xl mx-auto">
     <div class="fade-in text-center mb-16">
       <div class="hero-badge mb-4" style="background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);color:#6ee7b7">用运营视角拆解</div>
@@ -529,7 +598,7 @@
 </section>
 
 <!-- ═══════ FULL COMPARISON TABLE ═══════ -->
-<section class="px-6 pb-24">
+<section id="table" class="px-6 pb-24">
   <div class="max-w-5xl mx-auto">
     <div class="fade-in">
       <h3 class="text-2xl font-bold text-center mb-8 text-white">📊 全维度对比表</h3>
@@ -600,7 +669,7 @@
 </section>
 
 <!-- ═══════ CTA ═══════ -->
-<section class="px-6 py-24">
+<section id="cta" class="px-6 py-24">
   <div class="max-w-3xl mx-auto text-center fade-in">
     <h2 class="text-4xl font-bold mb-4">
       <span class="gradient-text">开始给你的 AI 套上马具</span>
@@ -811,14 +880,48 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.1 });
 document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
-// Smooth scroll
+// Smooth scroll（偏移导航栏高度 57px）
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', e => {
     e.preventDefault();
     const target = document.querySelector(a.getAttribute('href'));
-    if (target) target.scrollIntoView({ behavior: 'smooth' });
+    if (target) {
+      const offset = 57;
+      const top = target.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
   });
 });
+
+// 阅读进度条 + 导航高亮
+const progressBar = document.getElementById('read-progress');
+const topnav = document.getElementById('topnav');
+const navLinks = document.querySelectorAll('.nav-link[data-section]');
+const sections = ['hero','nightmare','harness','steps','compare','table','cta'];
+
+function updateProgressAndNav() {
+  // 进度条
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+  progressBar.style.width = progress + '%';
+
+  // 导航栏阴影
+  topnav.classList.toggle('scrolled', scrollTop > 10);
+
+  // 当前高亮 section
+  let current = 'hero';
+  for (const id of sections) {
+    const el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top <= 80) current = id;
+  }
+  navLinks.forEach(link => {
+    link.classList.toggle('active', link.dataset.section === current);
+  });
+}
+
+window.addEventListener('scroll', updateProgressAndNav, { passive: true });
+updateProgressAndNav();
 </script>
 </body>
 </html>
