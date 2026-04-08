@@ -264,8 +264,8 @@
         <div class="flex items-start gap-4">
           <span class="text-2xl">🟣</span>
           <div>
-            <div class="font-bold text-white mb-1">难以维护的提示词黑盒</div>
-            <p class="text-slate-400 text-sm">当业务规则变动（如活动延期、逻辑调整），如果没有 Harness 框架，你可能需要重写那段几千字的复杂提示词，然后祈祷不要改出新 Bug，导致页面失效或上下文冲突。有了 Harness，只需要更新规则库或校验脚本——这才是符合运营效率的资产化管理方式。</p>
+            <div class="font-bold text-white mb-1">难以维护的历史提示词</div>
+            <p class="text-slate-400 text-sm">当业务规则变动时或者交接了系统，你不知道历史的运营都输入了什么提示词，你可能需要重写那段几千字的复杂提示词，然后祈祷不要改出新 Bug，有可能因为和历史的逻辑互斥导致页面失效、或者上下文功能冲突不适配导致页面无法正常使用。</p>
           </div>
         </div>
       </div>
@@ -295,8 +295,8 @@
       </div>
       <!-- 三层核心逻辑 -->
       <div class="mb-2">
-        <div class="text-slate-400 font-semibold text-sm mb-5">核心逻辑的三层拆解</div>
-        <div class="grid md:grid-cols-3 gap-4">
+        <div class="text-slate-400 font-semibold text-sm mb-5">核心逻辑的四层拆解</div>
+        <div class="grid md:grid-cols-4 gap-4">
           <div class="rounded-xl p-5" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15)">
             <div class="flex items-center gap-2 mb-3">
               <span class="text-xl">🛑</span>
@@ -317,6 +317,13 @@
               <span class="font-bold text-green-400 text-sm">验证 Validation</span>
             </div>
             <div class="text-xs text-slate-400 leading-relaxed">自动质检。在结果交付前，通过独立脚本对 AI 产出「判分」。结果不符合业务标准，系统自动触发纠错流程，直到达标为止。</div>
+          </div>
+          <div class="rounded-xl p-5" style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15)">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="text-xl">🔁</span>
+              <span class="font-bold text-amber-400 text-sm">修复反馈 Fix &amp; Feedback</span>
+            </div>
+            <div class="text-xs text-slate-400 leading-relaxed">闭环迭代。验证不通过时，系统自动将错误信息反馈给 AI 并触发修正，直到输出符合标准——而不是每次靠人工重新提问。</div>
           </div>
         </div>
       </div>
@@ -380,7 +387,7 @@
         <div class="grid md:grid-cols-2 gap-0 pb-5 px-6">
           <div class="rounded-xl p-4 mr-2" style="background:rgba(156,163,175,0.05);border:1px solid rgba(156,163,175,0.1)">
             <div class="text-xs font-semibold text-slate-500 mb-2">💪 运营日常</div>
-            <p class="text-slate-400 text-sm">运营最怕信息过载，或者信息差导致的数据对不齐，对方丢来一堆冗长的学城文档希望你立刻理解活动方案并产出策略。</p>
+            <p class="text-slate-400 text-sm">运营最怕信息过载，或者信息差导致的数据对不齐，对方丢来一堆冗长的学城文档希望你立刻理解所有内容，并提取出有用的知识点。</p>
           </div>
           <div class="rounded-xl p-4 ml-2" style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2)">
             <div class="text-xs font-semibold text-purple-400 mb-2">🐴 Harness 模式</div>
@@ -422,7 +429,7 @@
         <div class="grid md:grid-cols-2 gap-0 pb-5 px-6">
           <div class="rounded-xl p-4 mr-2" style="background:rgba(156,163,175,0.05);border:1px solid rgba(156,163,175,0.1)">
             <div class="text-xs font-semibold text-slate-500 mb-2">💪 运营日常</div>
-            <p class="text-slate-400 text-sm">运营需建立兜底机制：策略上有兜底方案，落地页上有兜底页；营销数据异常时系统报警。对于超出自身能力范围的问题，需按层级上报给老板。</p>
+            <p class="text-slate-400 text-sm">当数据异常或者出现问题，运营通常有一套排查-优化-验证逻辑；另外活动运营需建立兜底机制：策略上有兜底方案，落地页上有兜底页；对于超出自身能力范围的问题，需按层级上报给老板。</p>
           </div>
           <div class="rounded-xl p-4 ml-2" style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2)">
             <div class="text-xs font-semibold text-orange-400 mb-2">🐴 Harness 模式</div>
@@ -832,11 +839,15 @@ const PROMPTS = {
    - 订单成功率：≥ 98% 正常（绿）；95%-98% 警告（橙）；< 95% 危险（红）
    - 支付成功率：≥ 99% 正常（绿）；97%-99% 警告（橙）；< 97% 危险（红）
    - 库存水位：< 75% 正常（绿）；75%-85% 警告（橙）；> 85% 危险（红）
-2. 总体状态联动（一票否决制）：只要有一个指标进入"危险"，顶部状态栏必须立即变红。
+2. 运营逻辑判断：
+   - 数据异常：如果订单成功率和支付成功率之间的 gap > 5pp，需要检查数据抓取是否准确，如果未发现异常需要提醒人来检查；
+   - 如果支付率一直低于 75% 需要强提醒告诉人去排查落地页功能和逻辑；
+3. 总体状态联动（一票否决制）：只要有一个指标进入"危险"，顶部状态栏必须立即变红。优先级：危险 > 警告 > 正常。
 
 三、统一颜色规则（状态映射）
 - 背景：深色的 Glassmorphism（玻璃拟态）
 - 正常状态：绿色；警告状态：橙色；危险状态：红色
+- 配色需求：整体配色与 Glassmorphism 背景协调一致，并且对正常/警告/危险的状态颜色进行统一且和谐
 - UI 联动：当指标状态改变时，卡片的边框颜色、文字颜色必须同步切换。
 
 四、动态数据模拟（运营上下文）
