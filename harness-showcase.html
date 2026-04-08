@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harness Engineering — 运营人的 Vibe Coding 指南</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  :root { --bg:#0a0e1a; --card:rgba(255,255,255,0.04); --border:rgba(255,255,255,0.08); }
+  * { box-sizing:border-box; }
+  body { font-family:'Inter','PingFang SC',-apple-system,sans-serif; background:var(--bg); color:#e2e8f0; line-height:1.6; min-height:100vh; overflow-x:hidden; }
+  body::before { content:''; position:fixed; inset:0; background-image:linear-gradient(rgba(59,130,246,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.03) 1px,transparent 1px); background-size:40px 40px; pointer-events:none; z-index:0; }
+  .ambient-blob { position:fixed; border-radius:50%; filter:blur(120px); opacity:0.15; pointer-events:none; z-index:0; }
+  .blob-blue  { width:600px;height:600px;background:#3b82f6;top:-200px;left:-200px; }
+  .blob-purple{ width:500px;height:500px;background:#8b5cf6;bottom:10%;right:-150px; }
+  .blob-teal  { width:400px;height:400px;background:#06b6d4;top:40%;left:40%; }
+  .glass { background:var(--card); border:1px solid var(--border); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); }
+  .hero-badge { display:inline-flex;align-items:center;gap:6px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:100px;padding:4px 14px;font-size:13px;color:#93c5fd;font-weight:500; }
+  .gradient-text { background:linear-gradient(135deg,#60a5fa 0%,#a78bfa 50%,#34d399 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+  .concept-card { position:relative;padding:28px;border-radius:20px;overflow:hidden;transition:transform 0.3s ease; }
+  .concept-card:hover { transform:translateY(-4px); }
+  .card-icon { width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:18px; }
+  .icon-blue{background:rgba(59,130,246,0.15);} .icon-purple{background:rgba(139,92,246,0.15);} .icon-green{background:rgba(16,185,129,0.15);}
+  .step-item { display:flex;gap:20px;position:relative; }
+  .step-item:not(:last-child)::after { content:'';position:absolute;left:19px;top:44px;width:2px;bottom:-20px;background:linear-gradient(to bottom,rgba(59,130,246,0.4),transparent); }
+  .step-num { width:40px;height:40px;border-radius:50%;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.4);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#60a5fa;flex-shrink:0; }
+  .demo-card { border-radius:20px;overflow:hidden;transition:transform 0.3s ease; }
+  .demo-card:hover { transform:translateY(-6px); }
+  .demo-badge { display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:100px;font-size:12px;font-weight:600;letter-spacing:0.5px; }
+  .badge-natural  { background:rgba(156,163,175,0.15);color:#9ca3af;border:1px solid rgba(156,163,175,0.3); }
+  .badge-prompt   { background:rgba(245,158,11,0.12);color:#fbbf24;border:1px solid rgba(245,158,11,0.3); }
+  .badge-harness  { background:rgba(16,185,129,0.12);color:#34d399;border:1px solid rgba(16,185,129,0.3); }
+  .demo-img-container { aspect-ratio:16/10;border-radius:12px;overflow:hidden;position:relative;background:#0d1117;border:1px solid rgba(255,255,255,0.08); }
+  .demo-img-container img { width:100%;height:100%;object-fit:cover;object-position:top;transition:transform 0.4s ease; }
+  .demo-img-container:hover img { transform:scale(1.03); }
+  .demo-img-overlay { position:absolute;inset:0;background:linear-gradient(to bottom,transparent 60%,rgba(0,0,0,0.6) 100%); }
+  .demo-link-btn { position:absolute;bottom:14px;right:14px;display:flex;align-items:center;gap:6px;background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.2);backdrop-filter:blur(10px);padding:6px 14px;border-radius:8px;color:white;font-size:12px;font-weight:500;text-decoration:none;transition:background 0.2s; }
+  .demo-link-btn:hover { background:rgba(59,130,246,0.5); }
+  .comp-table { width:100%;border-collapse:separate;border-spacing:0; }
+  .comp-table th,.comp-table td { padding:14px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.06);font-size:14px; }
+  .comp-table th { background:rgba(255,255,255,0.03);font-weight:600;font-size:13px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px; }
+  .comp-table tr:hover td { background:rgba(255,255,255,0.02); }
+  .comp-table td:first-child { color:#94a3b8;font-weight:500; }
+  .check{color:#34d399;} .cross{color:#f87171;} .partial{color:#fbbf24;}
+  .cta-btn { display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:12px;font-weight:600;font-size:15px;transition:all 0.2s ease;cursor:pointer;text-decoration:none; }
+  .btn-primary { background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:white;box-shadow:0 4px 20px rgba(59,130,246,0.3); }
+  .btn-primary:hover { transform:translateY(-2px);box-shadow:0 8px 30px rgba(59,130,246,0.4); }
+  .btn-outline { background:transparent;border:1px solid rgba(255,255,255,0.15);color:#cbd5e1; }
+  .btn-outline:hover { background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.3); }
+  section { position:relative;z-index:1; }
+  .fade-in { opacity:0;transform:translateY(24px);transition:opacity 0.6s ease,transform 0.6s ease; }
+  .fade-in.visible { opacity:1;transform:translateY(0); }
+  @keyframes pulse-ring { 0%{transform:scale(1);opacity:1;} 100%{transform:scale(2.5);opacity:0;} }
+  .pulse-dot { position:relative;display:inline-block;width:10px;height:10px; }
+  .pulse-dot::before { content:'';position:absolute;inset:0;border-radius:50%;background:currentColor;animation:pulse-ring 1.5s ease-out infinite; }
+  .pulse-dot::after { content:'';position:absolute;inset:0;border-radius:50%;background:currentColor; }
+  .quote-block { border-left:3px solid rgba(139,92,246,0.5);padding:16px 20px;background:rgba(139,92,246,0.05);border-radius:0 12px 12px 0;font-style:italic;color:#c4b5fd; }
+  .tag-pill { display:inline-block;padding:2px 10px;border-radius:100px;font-size:11px;font-weight:600; }
+  @media(max-width:768px){.hero-title{font-size:2rem!important;}}
+
+  /* ── 阅读进度条 ── */
+  #read-progress {
+    position:fixed; top:0; left:0; height:3px; width:0%;
+    background:linear-gradient(90deg,#3b82f6,#8b5cf6,#34d399);
+    z-index:2000; transition:width 0.1s linear;
+    box-shadow:0 0 8px rgba(139,92,246,0.6);
+  }
+
+  /* ── 导航栏 ── */
+  #topnav {
+    position:fixed; top:3px; left:0; right:0; z-index:1900;
+    height:54px;
+    background:rgba(10,14,26,0.82);
+    backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid rgba(255,255,255,0.07);
+    display:flex; align-items:center; padding:0 24px;
+    transition:box-shadow 0.3s;
+  }
+  #topnav.scrolled { box-shadow:0 4px 24px rgba(0,0,0,0.5); }
+  .nav-brand {
+    display:flex; align-items:center; gap:8px;
+    font-weight:700; font-size:15px; color:#e2e8f0;
+    text-decoration:none; white-space:nowrap; margin-right:32px;
+    flex-shrink:0;
+  }
+  .nav-brand .brand-icon {
+    width:28px; height:28px; border-radius:8px;
+    background:linear-gradient(135deg,#3b82f6,#8b5cf6);
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px;
+  }
+  .nav-links {
+    display:flex; align-items:center; gap:4px;
+    overflow-x:auto; scrollbar-width:none; flex:1;
+  }
+  .nav-links::-webkit-scrollbar { display:none; }
+  .nav-link {
+    padding:5px 13px; border-radius:8px; font-size:13px; font-weight:500;
+    color:#94a3b8; text-decoration:none; white-space:nowrap;
+    transition:background 0.2s, color 0.2s;
+  }
+  .nav-link:hover { background:rgba(255,255,255,0.06); color:#e2e8f0; }
+  .nav-link.active { background:rgba(59,130,246,0.12); color:#60a5fa; }
+  @media(max-width:640px) {
+    #topnav { padding:0 14px; }
+    .nav-brand { margin-right:12px; }
+    .nav-link { padding:5px 9px; font-size:12px; }
+  }
+
+  /* Prompt section */
+  .prompt-container { position:relative; }
+  .prompt-preview { cursor:pointer; position:relative; }
+  .prompt-section-header {
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 14px;
+    border-radius:12px 12px 0 0;
+    background:rgba(59,130,246,0.08);
+    border:1px solid rgba(59,130,246,0.2);
+    border-bottom:none;
+  }
+  .prompt-expand-btn {
+    display:inline-flex;align-items:center;gap:6px;
+    padding:5px 14px;border-radius:8px;font-size:12px;font-weight:600;
+    cursor:pointer;transition:all 0.2s;border:none;letter-spacing:0.3px;
+  }
+  .prompt-expand-btn.natural  { background:rgba(156,163,175,0.15);color:#d1d5db;border:1px solid rgba(156,163,175,0.3); }
+  .prompt-expand-btn.prompt-e { background:rgba(245,158,11,0.15);color:#fbbf24;border:1px solid rgba(245,158,11,0.35); }
+  .prompt-expand-btn.harness  { background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.35); }
+  .prompt-expand-btn:hover { filter:brightness(1.2);transform:translateY(-1px); }
+  .prompt-body {
+    padding:12px 14px;
+    border-radius:0 0 12px 12px;
+    border:1px solid rgba(59,130,246,0.2);
+    border-top:none;
+    font-size:12px;color:#94a3b8;font-style:italic;
+    background:rgba(59,130,246,0.03);
+  }
+  .prompt-tooltip {
+    display:none;
+    position:fixed;
+    left:50%;transform:translateX(-50%);
+    bottom:80px;
+    width:min(640px, 90vw);
+    max-height:60vh;
+    overflow-y:auto;
+    z-index:1000;
+    background:#0d1324;
+    border:1px solid rgba(59,130,246,0.35);
+    border-radius:16px;
+    padding:20px;
+    font-size:12px;
+    line-height:1.7;
+    color:#94a3b8;
+    white-space:pre-wrap;
+    word-break:break-word;
+    box-shadow:0 20px 60px rgba(0,0,0,0.8);
+  }
+  .prompt-tooltip .tooltip-title {
+    font-size:11px;font-weight:700;color:#60a5fa;
+    text-transform:uppercase;letter-spacing:1px;
+    margin-bottom:12px;padding-bottom:8px;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .prompt-tooltip .close-btn {
+    cursor:pointer;color:#64748b;font-size:16px;line-height:1;
+    background:none;border:none;padding:0;
+  }
+  .prompt-tooltip .close-btn:hover{color:#94a3b8;}
+  .prompt-preview:hover .prompt-hint { opacity:1; }
+  .prompt-hint {
+    opacity:0;transition:opacity 0.2s;
+    position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+    background:rgba(59,130,246,0.9);color:white;
+    padding:4px 10px;border-radius:6px;font-size:11px;white-space:nowrap;
+    pointer-events:none;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── 阅读进度条 ── -->
+<div id="read-progress"></div>
+
+<!-- ── 导航栏 ── -->
+<nav id="topnav">
+  <a href="#hero" class="nav-brand">
+    <div class="brand-icon">🐴</div>
+    好码配好鞍
+  </a>
+  <div class="nav-links">
+    <a href="#hero"      class="nav-link" data-section="hero">背景</a>
+    <a href="#nightmare" class="nav-link" data-section="nightmare">运营噩梦</a>
+    <a href="#harness"   class="nav-link" data-section="harness">核心概念</a>
+    <a href="#steps"     class="nav-link" data-section="steps">探索路径</a>
+    <a href="#compare"   class="nav-link" data-section="compare">Demo 对比</a>
+    <a href="#table"     class="nav-link" data-section="table">全维度对比</a>
+    <a href="#cta"       class="nav-link" data-section="cta">开始行动</a>
+  </div>
+</nav>
+
+<div class="ambient-blob blob-blue"></div>
+<div class="ambient-blob blob-purple"></div>
+<div class="ambient-blob blob-teal"></div>
+
+<!-- ═══════ HERO ═══════ -->
+<section id="hero" class="min-h-screen flex flex-col justify-center items-center text-center px-6 py-24" style="padding-top:calc(6rem + 54px)">
+  <div class="fade-in max-w-4xl mx-auto">
+    <div class="mb-5 flex flex-col items-center gap-2">
+      <div class="hero-badge">
+        <span class="pulse-dot text-blue-400"></span>
+        <span style="font-size:15px;font-weight:600">增长运营 × Vibe Coding 实践分享</span>
+      </div>
+      <div class="text-sm text-slate-400">分享人：<span class="text-slate-200 font-medium">业务渠道增长组 · 谭凌</span></div>
+    </div>
+    <h1 class="font-black mb-6 leading-tight" style="font-size:clamp(1.6rem,4vw,2.8rem)">
+      好<span class="gradient-text">「码」</span>配好鞍<br>
+      <span class="gradient-text">收缰，是为了更好地驰骋</span>
+    </h1>
+    <p class="text-xl mb-4 max-w-2xl mx-auto font-medium" style="color:#cbd5e1">运营人用自己的逻辑驯服 AI 的 Harness Engineering 实战指南</p>
+    <p class="text-slate-500 mb-10 max-w-xl mx-auto">
+      对于增长运营来说，Vibe Coding 意味着终于不用等排期就能搓出想要的页面。<br>
+      但纯提示词就像"求人办事"——AI 给的往往是漂亮的<strong class="text-slate-300">样板间</strong>，一上线就崩。
+    </p>
+    <div class="flex flex-wrap gap-3 justify-center">
+      <a href="#compare" class="cta-btn btn-primary">看三版 Demo 对比 →</a>
+      <a href="#harness" class="cta-btn btn-outline">什么是 Harness Engineering</a>
+    </div>
+  </div>
+  <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-slate-600 text-xs animate-bounce">
+    <span>向下滚动</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+  </div>
+</section>
+
+<!-- ═══════ NIGHTMARES ═══════ -->
+<section id="nightmare" class="px-6 py-24" style="background:rgba(0,0,0,0.2)">
+  <div class="max-w-4xl mx-auto">
+    <div class="fade-in text-center mb-12">
+      <h2 class="text-3xl font-bold mb-3">不用 Harness 会发生什么？</h2>
+      <p class="text-slate-400">三个运营噩梦，你一定踩过其中一个</p>
+    </div>
+    <div class="space-y-4 fade-in">
+      <div class="glass rounded-2xl p-6" style="border-left:3px solid #ef4444">
+        <div class="flex items-start gap-4">
+          <span class="text-2xl">🔴</span>
+          <div>
+            <div class="font-bold text-white mb-1">AI 自由发挥：数据编造</div>
+            <p class="text-slate-400 text-sm">AI 可能过度热情，按照自己的理解加入你完全不需要的模块，或者因为没有数据约束，自行编造数据——比如让页面显示"成功率 110%"。提示词里写再多"请实事求是"也无法完全杜绝这种运营事故。</p>
+          </div>
+        </div>
+      </div>
+      <div class="glass rounded-2xl p-6" style="border-left:3px solid #f59e0b">
+        <div class="flex items-start gap-4">
+          <span class="text-2xl">🟡</span>
+          <div>
+            <div class="font-bold text-white mb-1">记性不好：逻辑断层</div>
+            <p class="text-slate-400 text-sm">随着对话变长，AI 会逐渐忘掉你最开始的核心诉求，或者因为信息污染开始前言不搭后语。没有上下文工程，Agent 很快变成一个"只有短暂记忆"的低端聊天机器人。</p>
+          </div>
+        </div>
+      </div>
+      <div class="glass rounded-2xl p-6" style="border-left:3px solid #8b5cf6">
+        <div class="flex items-start gap-4">
+          <span class="text-2xl">🟣</span>
+          <div>
+            <div class="font-bold text-white mb-1">难以维护的提示词黑盒</div>
+            <p class="text-slate-400 text-sm">当业务规则变动（如活动延期、逻辑调整），如果没有 Harness 框架，你可能需要重写那段几千字的复杂提示词，然后祈祷不要改出新 Bug，导致页面失效或上下文冲突。有了 Harness，只需要更新规则库或校验脚本——这才是符合运营效率的资产化管理方式。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ WHAT IS HARNESS ═══════ -->
+<section id="harness" class="px-6 py-24">
+  <div class="max-w-6xl mx-auto">
+
+    <!-- 什么是 Harness Engineering -->
+    <div class="fade-in text-center mb-12">
+      <div class="hero-badge mb-4" style="background:rgba(139,92,246,0.1);border-color:rgba(139,92,246,0.3);color:#c4b5fd">核心概念</div>
+      <h2 class="text-4xl font-bold mb-4">什么是 <span class="gradient-text">Harness Engineering</span>？</h2>
+      <p class="text-slate-400 max-w-xl mx-auto">好「码」配好鞍——收缰不是束缚，是为了让 AI 跑得更稳、更远、更可控</p>
+    </div>
+
+    <div class="fade-in glass rounded-2xl p-8 mb-8" style="border-color:rgba(139,92,246,0.2)">
+      <!-- 核心定义 -->
+      <div class="flex items-start gap-4 mb-8 pb-8" style="border-bottom:1px solid rgba(255,255,255,0.06)">
+        <div class="text-4xl flex-shrink-0">🐴</div>
+        <div>
+          <div class="font-bold text-white text-lg mb-2">从「好码配好鞍」到「整车系统」的深度理解</div>
+          <p class="text-slate-300 text-sm leading-relaxed">如果说 AI 模型是一台动力澎湃但方向未定的<strong class="text-white">「引擎」</strong>，那么 Harness Engineering 就是围绕这台引擎构建的<strong class="text-white">「整车系统」</strong>——包括方向盘（控制）、仪表盘（监控）、刹车（约束）和油箱（上下文数据）。<br><br>你不再寄希望于 AI 突然变得「聪明」或「听话」，而是通过设计一套环境逻辑，让即便是一个表现平庸的模型，也能在你的框架内<strong class="text-white">稳定、可靠地完成复杂的运营任务</strong>。</p>
+        </div>
+      </div>
+      <!-- 三层核心逻辑 -->
+      <div class="mb-2">
+        <div class="text-slate-400 font-semibold text-sm mb-5">核心逻辑的三层拆解</div>
+        <div class="grid md:grid-cols-3 gap-4">
+          <div class="rounded-xl p-5" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15)">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="text-xl">🛑</span>
+              <span class="font-bold text-red-400 text-sm">约束 Constraints</span>
+            </div>
+            <div class="text-xs text-slate-400 leading-relaxed">设定红线。通过代码或规则明确 AI「不准做什么」。就像运营中锁死折扣上限，防止 AI 自行生成错误价格导致资损。</div>
+          </div>
+          <div class="rounded-xl p-5" style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15)">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="text-xl">🧠</span>
+              <span class="font-bold text-blue-400 text-sm">上下文 Context</span>
+            </div>
+            <div class="text-xs text-slate-400 leading-relaxed">注入灵魂。不只是一段提示词，而是动态地根据任务进度提供最相关的业务文档、历史数据和 SOP，让 AI 始终在「懂行」的状态下工作。</div>
+          </div>
+          <div class="rounded-xl p-5" style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15)">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="text-xl">✅</span>
+              <span class="font-bold text-green-400 text-sm">验证 Validation</span>
+            </div>
+            <div class="text-xs text-slate-400 leading-relaxed">自动质检。在结果交付前，通过独立脚本对 AI 产出「判分」。结果不符合业务标准，系统自动触发纠错流程，直到达标为止。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 运营视角一句话总结 -->
+    <div class="fade-in glass rounded-2xl p-6 mb-16" style="background:rgba(139,92,246,0.06);border-color:rgba(139,92,246,0.2)">
+      <div class="flex items-start gap-4">
+        <span class="text-2xl flex-shrink-0">💡</span>
+        <div>
+          <div class="font-bold text-purple-300 mb-2">用运营的话来说</div>
+          <p class="text-slate-300 text-sm leading-relaxed">一个跑得好的投放策略，从来不是靠当时的人「聪明」，靠的是当时搭了一套<strong class="text-white">「不容易犯错的系统」</strong>——增长目标、预算上限、成本区间、素材审核、转化归因，每个环节都有约束、有标准、有反馈。<br><br>Harness Engineering 做的事，就是把那套运营系统搬到 AI 身上，让它从小白直接变成一个资深运营。</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════ 5 STEPS ═══════ -->
+<section id="steps" class="px-6 py-24" style="background:rgba(0,0,0,0.2)">
+  <div class="max-w-5xl mx-auto">
+    <div class="fade-in text-center mb-16">
+      <div class="hero-badge mb-4" style="background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);color:#6ee7b7">用运营视角拆解</div>
+      <h2 class="text-4xl font-bold mb-4">运营视角理解 Harness 的<br><span class="gradient-text">核心四步</span></h2>
+      <p class="text-slate-400">从"单纯丢给 AI 提示词"转向"设计运行系统"</p>
+    </div>
+
+    <div class="space-y-5">
+
+      <!-- Step 1 -->
+      <div class="fade-in glass rounded-2xl overflow-hidden">
+        <div class="flex items-center gap-3 px-6 pt-5 pb-3">
+          <div class="step-num flex-shrink-0">1</div>
+          <div>
+            <span class="font-bold text-blue-400">约束机制</span>
+            <span class="text-slate-500 text-xs ml-2">设定高压线，用机制锁，不靠人盯</span>
+          </div>
+        </div>
+        <div class="grid md:grid-cols-2 gap-0 pb-5 px-6">
+          <div class="rounded-xl p-4 mr-2" style="background:rgba(156,163,175,0.05);border:1px solid rgba(156,163,175,0.1)">
+            <div class="text-xs font-semibold text-slate-500 mb-2 flex items-center gap-1">💪 运营日常</div>
+            <p class="text-slate-400 text-sm">需要明确哪些折扣不能叠加使用，并将其梳理成 SOP 进行沉淀，便于后人查阅；或者直接在系统中设定优惠券的配置逻辑，从源头避免运营配置失误。</p>
+          </div>
+          <div class="rounded-xl p-4 ml-2" style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2)">
+            <div class="text-xs font-semibold text-blue-400 mb-2 flex items-center gap-1">🐴 Harness 模式</div>
+            <p class="text-slate-300 text-sm">在 AI 输出前建立<strong class="text-white">硬性校验脚本（Guardrails）</strong>：当 AI 准备输出价格时，系统自动比对数据库中的真实价格表，价格不在区间内 → 直接拦截报错，用户根本看不到那次输出。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="fade-in glass rounded-2xl overflow-hidden">
+        <div class="flex items-center gap-3 px-6 pt-5 pb-3">
+          <div class="step-num flex-shrink-0" style="background:rgba(139,92,246,0.15);border-color:rgba(139,92,246,0.4);color:#a78bfa">2</div>
+          <div>
+            <span class="font-bold text-purple-400">上下文工程</span>
+            <span class="text-slate-500 text-xs ml-2">按需喂料，别让 AI 自己翻档案</span>
+          </div>
+        </div>
+        <div class="grid md:grid-cols-2 gap-0 pb-5 px-6">
+          <div class="rounded-xl p-4 mr-2" style="background:rgba(156,163,175,0.05);border:1px solid rgba(156,163,175,0.1)">
+            <div class="text-xs font-semibold text-slate-500 mb-2">💪 运营日常</div>
+            <p class="text-slate-400 text-sm">运营最怕信息过载，或者信息差导致的数据对不齐，对方丢来一堆冗长的学城文档希望你立刻理解活动方案并产出策略。</p>
+          </div>
+          <div class="rounded-xl p-4 ml-2" style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2)">
+            <div class="text-xs font-semibold text-purple-400 mb-2">🐴 Harness 模式</div>
+            <p class="text-slate-300 text-sm"><strong class="text-white">按需索取（RAG）</strong>：只在 AI 需要处理某个具体环节时，才精准调取那部分规则。同时定期清理过时缓存，防止 AI 拿着「去年的活动方案」回答「今年的问题」。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="fade-in glass rounded-2xl overflow-hidden">
+        <div class="flex items-center gap-3 px-6 pt-5 pb-3">
+          <div class="step-num flex-shrink-0" style="background:rgba(16,185,129,0.15);border-color:rgba(16,185,129,0.4);color:#34d399">3</div>
+          <div>
+            <span class="font-bold text-green-400">验证系统</span>
+            <span class="text-slate-500 text-xs ml-2">上线前跑 checklist，AI 也要</span>
+          </div>
+        </div>
+        <div class="grid md:grid-cols-2 gap-0 pb-5 px-6">
+          <div class="rounded-xl p-4 mr-2" style="background:rgba(156,163,175,0.05);border:1px solid rgba(156,163,175,0.1)">
+            <div class="text-xs font-semibold text-slate-500 mb-2">💪 运营日常</div>
+            <p class="text-slate-400 text-sm">大促前，运营需依照上线 Checklist，对容错率低的环节进行测试，例如：确认落地页正常加载、货盘配置合理、页面分流符合预期。</p>
+          </div>
+          <div class="rounded-xl p-4 ml-2" style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2)">
+            <div class="text-xs font-semibold text-green-400 mb-2">🐴 Harness 模式</div>
+            <p class="text-slate-300 text-sm">为 Agent 配一个专门的<strong class="text-white">「检查员」</strong>：主 AI 生成回复后先过质检脚本，检查违禁词、格式、逻辑，不通过就打回重做，直到达标为止。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="fade-in glass rounded-2xl overflow-hidden">
+        <div class="flex items-center gap-3 px-6 pt-5 pb-3">
+          <div class="step-num flex-shrink-0" style="background:rgba(245,158,11,0.15);border-color:rgba(245,158,11,0.4);color:#fbbf24">4</div>
+          <div>
+            <span class="font-bold text-orange-400">修复反馈</span>
+            <span class="text-slate-500 text-xs ml-2">解不了的，及时分流给人</span>
+          </div>
+        </div>
+        <div class="grid md:grid-cols-2 gap-0 pb-5 px-6">
+          <div class="rounded-xl p-4 mr-2" style="background:rgba(156,163,175,0.05);border:1px solid rgba(156,163,175,0.1)">
+            <div class="text-xs font-semibold text-slate-500 mb-2">💪 运营日常</div>
+            <p class="text-slate-400 text-sm">运营需建立兜底机制：策略上有兜底方案，落地页上有兜底页；营销数据异常时系统报警。对于超出自身能力范围的问题，需按层级上报给老板。</p>
+          </div>
+          <div class="rounded-xl p-4 ml-2" style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2)">
+            <div class="text-xs font-semibold text-orange-400 mb-2">🐴 Harness 模式</div>
+            <p class="text-slate-300 text-sm">设计一套<strong class="text-white">「逃生通道」</strong>：闭环不是「AI 能解决所有问题」，而是「AI 解不了的，能及时让人知道」——这种人机协作的闭环，才是真正可靠的业务系统。</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ PROMPT VS HARNESS 本质差异 ═══════ -->
+<section class="px-6 py-24" style="background:rgba(0,0,0,0.2)">
+  <div class="max-w-6xl mx-auto">
+    <!-- Prompt vs Harness 本质差异 -->
+    <div class="fade-in text-center mb-16">
+      <div class="hero-badge mb-4" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);color:#fcd34d">对比理解</div>
+      <h2 class="text-4xl font-bold mb-4">Prompt vs Harness<br><span class="gradient-text">本质差异</span></h2>
+      <p class="text-slate-400 max-w-xl mx-auto">同一个需求，三种不同的驱动方式——从猜测到约束</p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6 mb-12">
+      <div class="fade-in concept-card glass" style="border-color:rgba(59,130,246,0.2)">
+        <div class="card-icon icon-blue">💬</div>
+        <div class="demo-badge badge-natural mb-3">自然语言</div>
+        <h3 class="text-lg font-bold mb-2 text-white">意识流聊天</h3>
+        <p class="text-slate-400 text-sm">凭感觉描述，让 AI 猜你想要什么。上手最快，但每次生成结果都可能完全不同。</p>
+        <div class="mt-4 pt-4" style="border-top:1px solid rgba(255,255,255,0.06)">
+          <div class="text-xs text-slate-500">侧重于直觉和感官描述，缺乏明确的逻辑判定和技术底座。</div>
+        </div>
+      </div>
+      <div class="fade-in concept-card glass" style="border-color:rgba(245,158,11,0.2)">
+        <div class="card-icon icon-purple">🎯</div>
+        <div class="demo-badge badge-prompt mb-3">Prompt Engineering</div>
+        <h3 class="text-lg font-bold mb-2 text-white">角色 + 说清楚</h3>
+        <p class="text-slate-400 text-sm">给 AI 一个角色，明确功能模块和视觉风格。AI 会主动加入它认为"专业"的东西，有惊喜也有风险。</p>
+        <div class="mt-4 pt-4" style="border-top:1px solid rgba(255,255,255,0.06)">
+          <div class="text-xs text-slate-500">明确了角色设定，但依然侧重于"结果"而非"系统环境"。</div>
+        </div>
+      </div>
+      <div class="fade-in concept-card glass" style="border-color:rgba(16,185,129,0.2)">
+        <div class="card-icon icon-green">🐴</div>
+        <div class="demo-badge badge-harness mb-3">Harness Engineering</div>
+        <h3 class="text-lg font-bold mb-2 text-white">约束框架 + 填空题</h3>
+        <p class="text-slate-400 text-sm">给整个系统套约束框架。定义运行围栏、业务 SOP 逻辑和自动质检闭环。核心结构永远稳定。</p>
+        <div class="mt-4 pt-4" style="border-top:1px solid rgba(255,255,255,0.06)">
+          <div class="text-xs text-slate-500">告诉 AI「做什么 + 逻辑怎么跑 + 出错怎么办 + 输出前自己检查」</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fade-in max-w-3xl mx-auto">
+      <div class="quote-block text-lg">
+        "好「码」配好鞍——收缰不是为了让 AI 停下来，而是为了让它拉着你的业务，跑得更稳、更快、更远。"
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ THREE DEMOS ═══════ -->
+<section id="compare" class="px-6 py-24">
+  <div class="max-w-6xl mx-auto">
+    <div class="fade-in text-center mb-16">
+      <div class="hero-badge mb-4" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);color:#fcd34d">实战 Demo 对比</div>
+      <h2 class="text-4xl font-bold mb-4">同一个需求，三种提示词<br><span class="gradient-text">三种结果</span></h2>
+      <p class="text-slate-400 max-w-xl mx-auto">需求：用 NoCode 做一个大促实时监控大屏</p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6 mb-10">
+
+      <!-- V1: 自然语言 -->
+      <div class="fade-in demo-card glass">
+        <div class="p-5">
+          <div class="flex items-center justify-between mb-3">
+            <span class="demo-badge badge-natural">V1 · 自然语言</span>
+            <span class="text-slate-600 text-xs">~150字</span>
+          </div>
+          <h3 class="font-bold text-white mb-1">大促实时监控大屏</h3>
+          <p class="text-slate-500 text-xs mb-4">意识流描述 · AI 全靠猜</p>
+          <div class="demo-img-container mb-4">
+            <img src="https://km.sankuai.com/api/file/cdn/2754797440/230594034906?contentType=1&isNewContent=false" alt="自然语言版"
+              onerror="this.style.display='none';this.parentElement.querySelector('.fallback').style.display='flex'">
+            <div class="fallback" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:rgba(255,255,255,0.3);font-size:12px">
+              <span style="font-size:2rem">🖥️</span><span>黑底绿字 · 终端风</span>
+            </div>
+            <div class="demo-img-overlay"></div>
+            <a href="https://nocode.sankuai.com/#/chat?pageId=ag4y6xvngekydb9c" target="_blank" class="demo-link-btn">打开 Demo →</a>
+          </div>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-start gap-2"><span class="check mt-0.5">✓</span><span class="text-slate-400">黑底绿字，终端/黑客风格</span></div>
+            <div class="flex items-start gap-2"><span class="check mt-0.5">✓</span><span class="text-slate-400">左侧优惠券进度条（V1 独有）</span></div>
+            <div class="flex items-start gap-2"><span class="check mt-0.5">✓</span><span class="text-slate-400">点击告警弹详情窗（V1 独有）</span></div>
+            <div class="flex items-start gap-2"><span class="cross mt-0.5">✗</span><span class="text-slate-400">阈值 AI 自定，无兜底保护</span></div>
+            <div class="flex items-start gap-2"><span class="cross mt-0.5">✗</span><span class="text-slate-400">重新生成结果完全不同</span></div>
+          </div>
+        </div>
+        <div class="px-5 pb-5 pt-3 prompt-container">
+          <div class="prompt-section-header">
+            <span class="text-slate-300 text-xs font-semibold">📋 完整提示词</span>
+            <button class="prompt-expand-btn natural" onclick="showPrompt('p1')">查看全文 ↗</button>
+          </div>
+          <div class="prompt-body">"帮我用 nocode 写一个大促实时监控大屏，要看起来非常专业且酷炫，背景用黑色，字体用那种绿色..."</div>
+        </div>
+      </div>
+
+      <!-- V2: Prompt Engineering -->
+      <div class="fade-in demo-card glass">
+        <div class="p-5">
+          <div class="flex items-center justify-between mb-3">
+            <span class="demo-badge badge-prompt">V2 · Prompt Engineering</span>
+            <span class="text-slate-600 text-xs">~200字</span>
+          </div>
+          <h3 class="font-bold text-white mb-1">大促风险与水位指挥舱</h3>
+          <p class="text-slate-500 text-xs mb-4">角色设定 + 组件清单 · AI 发挥技术实力</p>
+          <div class="demo-img-container mb-4">
+            <img src="https://km.sankuai.com/api/file/cdn/2754797440/230594192205?contentType=1&isNewContent=false" alt="Prompt Engineering版"
+              onerror="this.style.display='none';this.parentElement.querySelector('.fallback').style.display='flex'">
+            <div class="fallback" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:rgba(255,255,255,0.3);font-size:12px">
+              <span style="font-size:2rem">⚡</span><span>炫酷三栏布局</span>
+            </div>
+            <div class="demo-img-overlay"></div>
+            <a href="https://nocode.sankuai.com/#/chat?pageId=cli-2iep5cbpvjual1fe" target="_blank" class="demo-link-btn">打开 Demo →</a>
+          </div>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-start gap-2"><span class="check mt-0.5">✓</span><span class="text-slate-400">环形图 + IP封禁 Toast（AI 主动加的）</span></div>
+            <div class="flex items-start gap-2"><span class="check mt-0.5">✓</span><span class="text-slate-400">三栏布局，信息密度高</span></div>
+            <div class="flex items-start gap-2"><span class="partial mt-0.5">△</span><span class="text-slate-400">阈值 AI 自定，可能和业务不符</span></div>
+            <div class="flex items-start gap-2"><span class="cross mt-0.5">✗</span><span class="text-slate-400">你没要的功能出现了</span></div>
+            <div class="flex items-start gap-2"><span class="cross mt-0.5">✗</span><span class="text-slate-400">无数据兜底保护</span></div>
+          </div>
+        </div>
+        <div class="px-5 pb-5 pt-3 prompt-container">
+          <div class="prompt-section-header" style="background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.25)">
+            <span class="text-slate-300 text-xs font-semibold">📋 完整提示词</span>
+            <button class="prompt-expand-btn prompt-e" onclick="showPrompt('p2')">查看全文 ↗</button>
+          </div>
+          <div class="prompt-body" style="border-color:rgba(245,158,11,0.25);background:rgba(245,158,11,0.03)">"你是一名资深全栈工程师。请用 HTML+Tailwind CSS 为我开发一个「大促风险与水位指挥舱」..."</div>
+        </div>
+      </div>
+
+      <!-- V3: Harness Engineering -->
+      <div class="fade-in demo-card glass" style="border-color:rgba(16,185,129,0.2)">
+        <div class="p-5">
+          <div class="flex items-center justify-between mb-3">
+            <span class="demo-badge badge-harness">V3 · Harness Engineering</span>
+            <span class="text-slate-600 text-xs">~500字</span>
+          </div>
+          <h3 class="font-bold text-white mb-1">大促风险与水位指挥舱</h3>
+          <p class="text-slate-500 text-xs mb-4">七大约束框架 · 结构锁死 · 自检闭环</p>
+          <div class="demo-img-container mb-4">
+            <img src="https://km.sankuai.com/api/file/cdn/2754797440/230593209704?contentType=1&isNewContent=false" alt="Harness Engineering版"
+              onerror="this.style.display='none';this.parentElement.querySelector('.fallback').style.display='flex'">
+            <div class="fallback" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:rgba(255,255,255,0.3);font-size:12px">
+              <span style="font-size:2rem">🔒</span><span>玻璃拟态 · 结构稳定</span>
+            </div>
+            <div class="demo-img-overlay"></div>
+            <a href="https://nocode.sankuai.com/#/chat?pageId=cli-q7t4uyvrec37f13k" target="_blank" class="demo-link-btn">打开 Demo →</a>
+          </div>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-start gap-2"><span class="check mt-0.5">✓</span><span class="text-slate-400">4个区域缺一不可，结构锁死</span></div>
+            <div class="flex items-start gap-2"><span class="check mt-0.5">✓</span><span class="text-slate-400">阈值在代码中显式锁定+注释</span></div>
+            <div class="flex items-start gap-2"><span class="check mt-0.5">✓</span><span class="text-slate-400">safeFormat() 兜底，数据异常显"--"</span></div>
+            <div class="flex items-start gap-2"><span class="check mt-0.5">✓</span><span class="text-slate-400">一票否决制颜色联动</span></div>
+            <div class="flex items-start gap-2"><span class="check mt-0.5">✓</span><span class="text-slate-400">随时可交接，维护成本最低</span></div>
+          </div>
+        </div>
+        <div class="px-5 pb-5 pt-3 prompt-container">
+          <div class="prompt-section-header" style="background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.3)">
+            <span class="text-slate-300 text-xs font-semibold">📋 完整提示词</span>
+            <button class="prompt-expand-btn harness" onclick="showPrompt('p3')">查看全文 ↗</button>
+          </div>
+          <div class="prompt-body" style="border-color:rgba(16,185,129,0.3);background:rgba(16,185,129,0.03)">"一、架构约束 / 二、业务逻辑锁 / 三、颜色规则 / 四、动态模拟 / 五、防御兜底 / 六、注释规范 / 七、强制自检..."</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ FULL COMPARISON TABLE ═══════ -->
+<section id="table" class="px-6 pb-24">
+  <div class="max-w-5xl mx-auto">
+    <div class="fade-in">
+      <h3 class="text-2xl font-bold text-center mb-8 text-white">📊 全维度对比表</h3>
+      <div class="glass rounded-2xl overflow-hidden">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th style="width:22%">维度</th>
+              <th><span class="text-slate-400">V1</span> 自然语言</th>
+              <th><span class="text-yellow-400">V2</span> Prompt Engineering</th>
+              <th><span class="text-green-400">V3</span> Harness Engineering</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>提示词长度</td>
+              <td class="text-slate-300">~150字（最短）</td>
+              <td class="text-slate-300">~200字</td>
+              <td class="text-slate-300">~500字（最长）</td>
+            </tr>
+            <tr>
+              <td>结果可预期性</td>
+              <td><span class="cross">低</span> — 每次不同</td>
+              <td><span class="partial">中</span> — 风格可能漂移</td>
+              <td><span class="check">高</span> — 结构永远稳定</td>
+            </tr>
+            <tr>
+              <td>阈值可控性</td>
+              <td><span class="cross">✗</span> AI 自定</td>
+              <td><span class="cross">✗</span> AI 自定</td>
+              <td><span class="check">✓</span> 代码显式锁定</td>
+            </tr>
+            <tr>
+              <td>数据兜底保护</td>
+              <td><span class="cross">✗</span> 无</td>
+              <td><span class="cross">✗</span> 不确定</td>
+              <td><span class="check">✓</span> safeFormat()</td>
+            </tr>
+            <tr>
+              <td>颜色联动逻辑</td>
+              <td><span class="cross">✗</span> AI 自定</td>
+              <td><span class="partial">△</span> 部分有</td>
+              <td><span class="check">✓</span> 一票否决制</td>
+            </tr>
+            <tr>
+              <td>团队可交接性</td>
+              <td><span class="cross">低</span></td>
+              <td><span class="partial">中</span></td>
+              <td><span class="check">高</span></td>
+            </tr>
+            <tr>
+              <td>适合场景</td>
+              <td class="text-slate-300">快速原型验证</td>
+              <td class="text-slate-300">Demo、汇报展示</td>
+              <td class="text-slate-300">真实上线、长期维护</td>
+            </tr>
+            <tr>
+              <td>Token 效率</td>
+              <td class="text-slate-300">输入少，输出不稳</td>
+              <td class="text-slate-300">输入中，生成体量大</td>
+              <td class="text-slate-300">输入多，维护成本最低</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ CTA ═══════ -->
+<section id="cta" class="px-6 py-24">
+  <div class="max-w-3xl mx-auto text-center fade-in">
+    <h2 class="text-4xl font-bold mb-4">
+      <span class="gradient-text">开始给你的 AI 套上马具</span>
+    </h2>
+    <p class="text-slate-400 mb-8 text-lg">三个 Demo 都能在美团内网直接打开，对比一下就明白了</p>
+    <div class="flex flex-wrap gap-4 justify-center mb-12">
+      <a href="https://nocode.sankuai.com/#/chat?pageId=ag4y6xvngekydb9c" target="_blank" class="cta-btn btn-outline">
+        V1 自然语言 Demo
+      </a>
+      <a href="https://nocode.sankuai.com/#/chat?pageId=cli-2iep5cbpvjual1fe" target="_blank" class="cta-btn btn-outline" style="border-color:rgba(245,158,11,0.4);color:#fbbf24">
+        V2 Prompt Engineering
+      </a>
+      <a href="https://nocode.sankuai.com/#/chat?pageId=cli-q7t4uyvrec37f13k" target="_blank" class="cta-btn btn-primary">
+        V3 Harness Engineering ✨
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════ SKILL ═══════ -->
+<section class="px-6 py-24" style="background:rgba(0,0,0,0.2);position:relative;z-index:1">
+  <div class="max-w-4xl mx-auto">
+    <div class="fade-in text-center mb-12">
+      <div class="hero-badge mb-4" style="background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);color:#6ee7b7">🛠️ 附赠工具</div>
+      <h2 class="text-3xl font-bold mb-3">nocode-harness <span class="gradient-text">Skill</span></h2>
+      <p class="text-slate-400 max-w-xl mx-auto">把七步框架变成七步问答——不用自己写提示词，让 AI 引导你填空，自动组装 Harness Prompt 再生成页面</p>
+    </div>
+
+    <div class="fade-in grid md:grid-cols-2 gap-6 mb-8">
+      <div class="glass rounded-2xl p-6">
+        <div class="text-green-400 font-bold text-sm mb-3">🎯 适合谁用</div>
+        <ul class="space-y-2 text-sm text-slate-300">
+          <li class="flex items-start gap-2"><span class="text-green-400 mt-0.5">✓</span>不想自己写几百字提示词的运营</li>
+          <li class="flex items-start gap-2"><span class="text-green-400 mt-0.5">✓</span>想保证页面结构稳定、可交接</li>
+          <li class="flex items-start gap-2"><span class="text-green-400 mt-0.5">✓</span>需要在代码中标注替换点方便以后维护</li>
+          <li class="flex items-start gap-2"><span class="text-green-400 mt-0.5">✓</span>有自己的业务逻辑和阈值要"锁死"</li>
+        </ul>
+      </div>
+      <div class="glass rounded-2xl p-6">
+        <div class="text-blue-400 font-bold text-sm mb-3">⚡ 触发方式</div>
+        <ul class="space-y-2 text-sm text-slate-300">
+          <li class="flex items-start gap-2"><span class="text-blue-400 mt-0.5">→</span>对 AI 说「用 harness 做页面」</li>
+          <li class="flex items-start gap-2"><span class="text-blue-400 mt-0.5">→</span>或说「帮我用 harness 框架做」</li>
+          <li class="flex items-start gap-2"><span class="text-blue-400 mt-0.5">→</span>AI 会逐步引导你完成 7 步问答</li>
+          <li class="flex items-start gap-2"><span class="text-blue-400 mt-0.5">→</span>确认后自动调用 NoCode 生成页面</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="fade-in glass rounded-2xl p-6 mb-6">
+      <div class="text-slate-400 font-semibold text-sm mb-4">📋 七步问答流程</div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="rounded-xl p-3 text-center text-xs" style="background:rgba(59,130,246,0.07);border:1px solid rgba(59,130,246,0.15)">
+          <div class="text-blue-400 font-bold mb-1">Step 1</div>
+          <div class="text-slate-400">架构约束<br>必须/禁止模块</div>
+        </div>
+        <div class="rounded-xl p-3 text-center text-xs" style="background:rgba(139,92,246,0.07);border:1px solid rgba(139,92,246,0.15)">
+          <div class="text-purple-400 font-bold mb-1">Step 2</div>
+          <div class="text-slate-400">业务逻辑<br>指标 + 阈值</div>
+        </div>
+        <div class="rounded-xl p-3 text-center text-xs" style="background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.15)">
+          <div class="text-yellow-400 font-bold mb-1">Step 3</div>
+          <div class="text-slate-400">视觉风格<br>颜色 + 布局</div>
+        </div>
+        <div class="rounded-xl p-3 text-center text-xs" style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.15)">
+          <div class="text-green-400 font-bold mb-1">Step 4</div>
+          <div class="text-slate-400">数据逻辑<br>来源 + 刷新</div>
+        </div>
+        <div class="rounded-xl p-3 text-center text-xs" style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.15)">
+          <div class="text-red-400 font-bold mb-1">Step 5</div>
+          <div class="text-slate-400">防御兜底<br>空值 + 异常</div>
+        </div>
+        <div class="rounded-xl p-3 text-center text-xs" style="background:rgba(59,130,246,0.07);border:1px solid rgba(59,130,246,0.15)">
+          <div class="text-blue-400 font-bold mb-1">Step 6</div>
+          <div class="text-slate-400">配置注释<br>替换点标注</div>
+        </div>
+        <div class="rounded-xl p-3 text-center text-xs" style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.15)">
+          <div class="text-green-400 font-bold mb-1">Step 7</div>
+          <div class="text-slate-400">强制自检<br>上线前核查</div>
+        </div>
+        <div class="rounded-xl p-3 text-center text-xs" style="background:rgba(139,92,246,0.07);border:1px solid rgba(139,92,246,0.15)">
+          <div class="text-purple-400 font-bold mb-1">✨ 生成</div>
+          <div class="text-slate-400">自动组装<br>Harness Prompt</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fade-in glass rounded-2xl p-5">
+      <div class="text-slate-500 text-xs mb-2 font-semibold">📎 Skill 文件下载</div>
+      <a href="https://km.sankuai.com/api/file/cdn/2754797440/230597372712?contentType=0"
+         target="_blank"
+         class="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors text-sm font-medium">
+        📄 nocode-harness-full.md <span class="text-slate-600 font-normal text-xs ml-1">10.86KB · 含七步引导 + Prompt 模板 + 默认值配置</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="px-6 py-8 text-center text-slate-600 text-sm border-t" style="border-color:rgba(255,255,255,0.06);position:relative;z-index:1">
+  <p>Harness Engineering · 增长运营 × Vibe Coding 实践分享</p>
+  <p class="mt-1 text-slate-700">分享人：业务渠道增长组 · 谭凌</p>
+</footer>
+
+<!-- 提示词全文弹层 -->
+<div id="prompt-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999;backdrop-filter:blur(4px)" onclick="hidePrompt()"></div>
+<div id="prompt-modal" class="prompt-tooltip">
+  <div class="tooltip-title">
+    <span id="prompt-modal-title">完整提示词</span>
+    <button class="close-btn" onclick="hidePrompt()">✕</button>
+  </div>
+  <div id="prompt-modal-body"></div>
+</div>
+
+<script>
+const PROMPTS = {
+  p1: {
+    title: 'V1 · 自然语言提示词（约80字）',
+    text: `帮我使用nocode写一个大促实时监控大屏，要看起来非常专业且酷炫，背景用黑色，字体用那种绿色。中间要有一个动态的曲线图展示每秒订单量，左边放一个优惠券核销的进度条，右边做一个"风险报警"列表，如果有羊毛党就标红显示。最好点击列表能弹出一个分析小窗口，看起来像大厂双 11 的指挥部那样。`
+  },
+  p2: {
+    title: 'V2 · Prompt Engineering 提示词（约200字）',
+    text: `你是一名资深全栈工程师。请用 HTML+Tailwind CSS 为我开发一个"大促风险与水位指挥舱"：
+
+核心组件：
+1、总体状态、核心指标卡片（订单成功率、支付成功率、库存水位）、告警列表
+2、中间是实时订单曲线；左侧是环形图展示 5000 万预算的消耗进度；右侧是自动滚动的异常 IP 列表。
+
+视觉设计：使用深色科技风、玻璃质感，报警色用红色。
+
+交互逻辑：点击"一键封禁"按钮后，弹出"操作成功"的 Toast 提示。
+
+代码要求：请直接提供一个完整的 HTML 文件，所有库都通过在线 CDN 引入`
+  },
+  p3: {
+    title: 'V3 · Harness Engineering 提示词（约500字）',
+    text: `使用nocode做一个大促"风险与水位"指挥舱页面，我不懂技术，请帮我做一个能直接在浏览器打开的单个文件页面。
+
+一、架构约束：我要看到什么
+页面必须包含以下 4 个模块，缺一不可：
+1. 总体状态栏 —— 置顶显示。一眼看出今天大促是"正常/警告/危险"，并实时滚动风险分。
+2. 核心指标卡片 —— 包含"订单成功率"、"支付成功率"、"库存水位"三张卡片。
+3. 实时告警列表 —— 按严重程度排序。每条告警需有"已处理"按钮。
+4. 水位预测大图 —— 使用折线图展示未来 6 小时的水位趋势预测。
+
+技术底座要求：
+- 交付形式：单文件 HTML，通过 CDN 引入 Tailwind CSS 和 Chart.js。
+- 响应式：手机端（宽度 < 768px）时，指标卡片必须自动转为垂直单列排列。
+
+二、业务逻辑锁（注入大脑）
+请将以下判定逻辑锁死在 JavaScript 函数中，严禁仅显示静态数据：
+1. 指标判定标准：
+   - 订单成功率：≥ 98% 正常（绿）；95%-98% 警告（橙）；< 95% 危险（红）
+   - 支付成功率：≥ 99% 正常（绿）；97%-99% 警告（橙）；< 97% 危险（红）
+   - 库存水位：< 75% 正常（绿）；75%-85% 警告（橙）；> 85% 危险（红）
+2. 总体状态联动（一票否决制）：只要有一个指标进入"危险"，顶部状态栏必须立即变红。
+
+三、统一颜色规则（状态映射）
+- 背景：深色的 Glassmorphism（玻璃拟态）
+- 正常状态：绿色；警告状态：橙色；危险状态：红色
+- UI 联动：当指标状态改变时，卡片的边框颜色、文字颜色必须同步切换。
+
+四、动态数据模拟（运营上下文）
+请配置 updateDashboard() 函数，每 5 秒模拟一次小幅波动。
+- 起始数据：订单 96.2%（橙）、支付 98.1%（橙）、库存 68%（绿）
+- 预测曲线：当前 68%，+1h 75%，+2h 82%（橙色渲染），+3h 79%...
+
+五、防御与兜底（安全围栏）
+1. 数据保护：若计算异常返回 null 或 NaN，UI 必须显示 "--"，严禁报错。
+2. 操作保护：点击"已处理"后，告警条目变暗（0.3 透明度）并移至列表末尾。
+
+六、开发者配置注释
+请在代码中用注释标出：
+// [业务指标阈值]：这里改业务指标阈值。
+// [颜色配置点]：这里改统一的颜色色值。
+// [数据替换点]：这里改初始模拟数据。
+
+七、强制自检任务
+输出前确认：
+- 颜色逻辑：当数值跌破危险阈值时，卡片文字和顶部状态是否会同时变红？
+- 移动端：在手机宽度下，指标卡片是否变成了垂直排列？`
+  }
+};
+
+function showPrompt(id) {
+  const p = PROMPTS[id];
+  if (!p) return;
+  document.getElementById('prompt-modal-title').textContent = p.title;
+  document.getElementById('prompt-modal-body').textContent = p.text;
+  document.getElementById('prompt-overlay').style.display = 'block';
+  document.getElementById('prompt-modal').style.display = 'block';
+}
+function hidePrompt() {
+  document.getElementById('prompt-overlay').style.display = 'none';
+  document.getElementById('prompt-modal').style.display = 'none';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') hidePrompt(); });
+
+// Fade in on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 80);
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// Smooth scroll（偏移导航栏高度 57px）
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) {
+      const offset = 57;
+      const top = target.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+  });
+});
+
+// 阅读进度条 + 导航高亮
+const progressBar = document.getElementById('read-progress');
+const topnav = document.getElementById('topnav');
+const navLinks = document.querySelectorAll('.nav-link[data-section]');
+const sections = ['hero','nightmare','harness','steps','compare','table','cta'];
+
+function updateProgressAndNav() {
+  // 进度条
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+  progressBar.style.width = progress + '%';
+
+  // 导航栏阴影
+  topnav.classList.toggle('scrolled', scrollTop > 10);
+
+  // 当前高亮 section
+  let current = 'hero';
+  for (const id of sections) {
+    const el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top <= 80) current = id;
+  }
+  navLinks.forEach(link => {
+    link.classList.toggle('active', link.dataset.section === current);
+  });
+}
+
+window.addEventListener('scroll', updateProgressAndNav, { passive: true });
+updateProgressAndNav();
+</script>
+</body>
+</html>
