@@ -196,7 +196,7 @@
     <a href="#steps"     class="nav-link" data-section="steps">探索路径</a>
     <a href="#compare"   class="nav-link" data-section="compare">Demo 对比</a>
     <a href="#table"     class="nav-link" data-section="table">全维度对比</a>
-    <a href="#cta"       class="nav-link" data-section="cta">开始行动</a>
+
   </div>
 </nav>
 
@@ -681,27 +681,6 @@
   </div>
 </section>
 
-<!-- ═══════ CTA ═══════ -->
-<section id="cta" class="px-6 py-24">
-  <div class="max-w-3xl mx-auto text-center fade-in">
-    <h2 class="text-4xl font-bold mb-4">
-      <span class="gradient-text">开始给你的 AI 套上马具</span>
-    </h2>
-    <p class="text-slate-400 mb-8 text-lg">三个 Demo 都能在美团内网直接打开，对比一下就明白了</p>
-    <div class="flex flex-wrap gap-4 justify-center mb-12">
-      <a href="https://live-sales-monitor.mynocode.host" target="_blank" class="cta-btn btn-outline">
-        V1 自然语言 Demo
-      </a>
-      <a href="https://ebonbh.mynocode.host" target="_blank" class="cta-btn btn-outline" style="border-color:rgba(245,158,11,0.4);color:#fbbf24">
-        V2 Prompt Engineering
-      </a>
-      <a href="https://c0k0dd.mynocode.host" target="_blank" class="cta-btn btn-primary">
-        V3 Harness Engineering ✨
-      </a>
-    </div>
-
-  </div>
-</section>
 
 <!-- ═══════ SKILL ═══════ -->
 <section class="px-6 py-24" style="background:rgba(0,0,0,0.2);position:relative;z-index:1">
@@ -914,7 +893,7 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
 const progressBar = document.getElementById('read-progress');
 const topnav = document.getElementById('topnav');
 const navLinks = document.querySelectorAll('.nav-link[data-section]');
-const sections = ['hero','nightmare','harness','steps','compare','table','cta'];
+const sections = ['hero','nightmare','harness','steps','compare','table'];
 
 function updateProgressAndNav() {
   // 进度条
